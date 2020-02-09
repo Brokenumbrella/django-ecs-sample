@@ -4,7 +4,7 @@ This is a sample to deploy [django tutorial Polls app](https://docs.djangoprojec
 This repository does not include the Polls app created in the tutorial.  
 See below for a detailed explanation.  
 
-https://qiita.com/drafts/2ce3fceadfaa3d62e06f  
+https://qiita.com/Brokenumbrella/items/2ce3fceadfaa3d62e06f  
 (Sorry, this is in Japanese.)  
 
 ### Operation confirmed environment
