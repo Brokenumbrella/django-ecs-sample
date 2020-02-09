@@ -1,0 +1,12 @@
+version: 1
+task_definition:
+  services:
+    nginx:
+      mem_limit: 150m
+      mem_reservation: 128m
+    web:
+      mem_limit: 448m
+      mem_reservation: 400m
+    db:
+      mem_limit: 448m
+      mem_reservation: 400m

@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  db:
+    image : XXXXXXXXXXXX.dkr.ecr.ap-northeast-1.amazonaws.com/django-ecs-sample-mysql:latest
+    volumes:
+      - /db/data:/var/lib/mysql       # データの永続化を行う
+    environment:
+      - MYSQL_ROOT_PASSWORD=PWRoot1   # rootパスワードの設定
+      - MYSQL_DATABASE=mysite
+      - TZ=Asia/Tokyo
+
+  web:
+    image: XXXXXXXXXXXX.dkr.ecr.ap-northeast-1.amazonaws.com/django-ecs-sample-web:latest
+    command: sh /code/run-my-app.sh 
+    links:
+      - db
+
+  nginx :
+    image: XXXXXXXXXXXX.dkr.ecr.ap-northeast-1.amazonaws.com/django-ecs-sample-nginx:latest
+    ports:
+      - "80:80"
+    links:
+      - web

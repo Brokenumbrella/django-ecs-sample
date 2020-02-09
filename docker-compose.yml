@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+  db:                                         # MySQL DB 用の設定（この db という名前で web から DB HOST の指定ができる)
+    image : mysql:8.0.19
+    container_name: mysql.db
+    volumes:                                  # マウントフォルダの指定
+      - ./db/data:/var/lib/mysql              # データの永続化を行う
+      - ./db/conf/:/etc/mysql/conf.d/         # 設定ファイルをここから読み込ませる
+      - ./db/sqls:/docker-entrypoint-initdb.d # 初期データを与える場合はここから読み込ませる
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_PW}       # rootパスワードの設定
+      - MYSQL_DATABASE=mysite                 # 作成するDatabase名
+      - TZ=Asia/Tokyo                         # タイムゾーンを日本時間に変更
+
+  web:                                        # Web(Django)アプリケーション 用の設定
+    build:                                    # ビルド設定
+      context: ./web                          # ./web/Dockerfile を用いてビルドする
+      args:                                   # Dockerfile へ渡す環境変数の指定
+        - DUID=${DUID}
+        - DGID=${DGID}
+    environment:                              # 実行時に設定する環境変数
+      - MYSQL_HOST=${MYSQL_HOST}
+    user: ${DUID}:${DGID}                     # 実行時のユーザー指定
+    container_name: django.web
+    command: uwsgi --ini /code/mysite/mysite/uwsgi.ini
+    volumes:                                  # マウントフォルダの指定
+      - ./src:/code                           # アプリケーションのソースフォルダ
+      - ./static:/static                      # static ファイルフォルダ
+      - ./log/uwsgi/:/var/log/uwsgi           # uwsgi の設定ファイルをここから読み込ませる
+    expose:                                   # 開放するポート
+      - "8001"
+    links:                                    # db コンテナを先に立ち上げてから web を立ち上げる
+      - db
+
+  nginx :                                     # nginx 用の設定
+    image: nginx:1.17.8
+    container_name: nginx
+    ports:                                    # 8080 ポートを 80 ポートへ
+      - "8080:80"
+    volumes:                                  # マウントフォルダの指定
+      - ./nginx/conf:/etc/nginx/conf.d        # nginx 用の設定ファイルをここから読み込ませる
+      - ./nginx/uwsgi_params:/etc/nginx/uwsgi_params  # uwsgi のパラメータファイルをここから読ませる 
+      - ./static:/static                      # static ファイルフォルダ
+      - ./log/nginx/:/var/log/nginx           # ログファイルをここへ保存する（永続化）
+    depends_on:
+      - web                                   # web コンテナの後から起動させる

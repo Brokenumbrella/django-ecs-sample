@@ -1,0 +1,7 @@
+[client]
+database = mysite
+user = root
+password = PWRoot1
+host = db
+port = 3306
+default-character-set = utf8mb4

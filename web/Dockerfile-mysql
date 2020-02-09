@@ -1,0 +1,4 @@
+FROM mysql:8.0.19
+
+# 設定ファイルをコピーする
+COPY ./db/conf/ /etc/mysql/conf.d/ 
